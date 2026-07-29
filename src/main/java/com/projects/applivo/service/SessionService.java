@@ -13,6 +13,7 @@ import com.projects.applivo.repository.EmulatorInstanceRepository;
 import com.projects.applivo.repository.SessionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -57,7 +58,13 @@ public class SessionService {
 
         Session saved = sessionRepository.save(session);
 
-        emulatorService.startEmulatorAsync(saved.getId(), appVersion.getId());
+        try{
+            emulatorService.startEmulatorAsync(saved.getId(), appVersion.getId());
+        }catch (TaskRejectedException e){
+            saved.setSessionStatus(SessionStatus.FAILED);
+            sessionRepository.save(saved);
+            throw new InvalidOperationException("Server is at max capacity. Try again later!");
+        }
 
         return SessionResponse.builder()
                 .sessionId(saved.getId())
