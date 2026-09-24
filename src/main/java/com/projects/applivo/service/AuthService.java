@@ -36,6 +36,7 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
 
+    @Transactional
     public AuthResponse register(RegisterRequest request){
 
         if (userRepository.existsByEmail(request.getEmail())){

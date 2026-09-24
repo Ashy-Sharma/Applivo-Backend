@@ -73,7 +73,7 @@ public class RefreshTokenService {
     public String rotate(RefreshToken token){
 
         token.setIsRevoked(true);
-
+        refreshTokenRepository.save(token);
         String newRawToken = jwtService.generateRefreshToken(token.getUser());
 
         createRefreshToken(token.getUser(), newRawToken);
